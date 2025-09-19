@@ -124,6 +124,20 @@ Retrieve captured transaction history in reverse chronological order (newest fir
 }
 ```
 
+### 5. Clear Transactions
+```http
+DELETE /api/transactions
+```
+
+Clear all captured transaction history from storage.
+
+**Response:**
+```json
+{
+  "cleared_count": 15
+}
+```
+
 ## Usage Workflow
 
 ### 1. Setup Proxy Configuration
