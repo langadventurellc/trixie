@@ -15,3 +15,13 @@ if ! uv run poe quality; then
 fi
 
 echo "✅ Quality checks passed"
+
+echo "🧪 Running tests..."
+if ! uv run poe test; then
+    echo "❌ Tests failed - fix issues before completing task" >&2
+    exit 2
+fi
+
+echo "✅ Tests passed"
+echo "🎉 Pre-completion checks successful - proceeding with task completion"
+exit 0

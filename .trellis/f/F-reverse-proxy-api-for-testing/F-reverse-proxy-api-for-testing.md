@@ -1,14 +1,41 @@
 ---
 id: F-reverse-proxy-api-for-testing
 title: Reverse Proxy API for Testing
-status: open
+status: in-progress
 priority: medium
 parent: none
 prerequisites: []
-affectedFiles: {}
+affectedFiles:
+  pyproject.toml: Added pytest>=8.0.0 to dev dependencies for testing framework
+  src/app/api/models/__init__.py: Created models package directory
+  src/app/api/models/setup_request.py: Created SetupRequest Pydantic model with URL and path prefix validation
+  src/app/api/models/setup_response.py: Created SetupResponse Pydantic model for API responses
+  src/app/api/models/transaction_record.py: Created TransactionRecord Pydantic model for transaction data
+  src/app/api/models/transactions_response.py: Created TransactionsResponse Pydantic model for transaction lists
+  src/app/core/__init__.py: Created core package directory
+  src/app/core/storage_data.py: Created global storage variables for proxy
+    configurations and transaction history
+  src/app/core/add_proxy_config.py: Created function to add proxy configuration mappings
+  src/app/core/get_proxy_config.py: Created function with longest-prefix-first matching algorithm for routing
+  src/app/core/clear_proxy_configs.py: Created function to clear all proxy configurations
+  src/app/core/add_transaction.py: Created function to add transactions to history
+  src/app/core/get_transactions.py: Created function to retrieve transactions in
+    reverse chronological order with optional count limit
+  tests/__init__.py: Created tests package directory
+  tests/test_setup_request.py: Created comprehensive tests for SetupRequest model validation
+  tests/test_setup_response.py: Created tests for SetupResponse model
+  tests/test_transaction_record.py: Created tests for TransactionRecord model serialization
+  tests/test_transactions_response.py: Created tests for TransactionsResponse model
+  tests/test_storage_functions.py: Created comprehensive tests for all storage
+    functions including prefix matching algorithm and edge cases
 log: []
 schema: v1.0
-childrenIds: []
+childrenIds:
+  - T-create-data-models-and-in
+  - T-implement-get-apitransactions
+  - T-implement-post-apisetup
+  - T-implement-proxypathpath
+  - T-update-main-api-router-to
 created: 2025-09-19T05:18:47.538Z
 updated: 2025-09-19T05:18:47.538Z
 ---

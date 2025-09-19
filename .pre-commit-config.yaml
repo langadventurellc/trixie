@@ -27,3 +27,9 @@ repos:
         language: system
         types: [python]
         require_serial: true
+      - id: pytest
+        name: pytest Tests
+        entry: uv run pytest
+        language: system
+        pass_filenames: false
+        always_run: true
