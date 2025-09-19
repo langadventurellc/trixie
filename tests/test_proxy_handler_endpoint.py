@@ -36,8 +36,8 @@ class TestProxyHandler:
         assert response.status_code == 200
         assert response.json() == {"id": 123, "name": "test"}
 
-        # Verify proxy config was called
-        mock_get_config.assert_called_once_with(self.test_path)
+        # Verify proxy config was called with normalized path (leading slash added)
+        mock_get_config.assert_called_once_with(f"/{self.test_path}")
 
         # Verify httpx request was made correctly
         mock_httpx.assert_called_once()
@@ -288,5 +288,82 @@ class TestProxyHandler:
             response = self.client.get(f"/proxy/{path}")
             assert response.status_code == 200
 
-            # Verify get_proxy_config was called with the full path
-            mock_get_config.assert_called_with(path)
+            # Verify get_proxy_config was called with the normalized path (leading slash added)
+            mock_get_config.assert_called_with(f"/{path}")
+
+    def test_proxy_integration_through_main_app(self):
+        """Test proxy endpoint works when accessed through complete FastAPI application."""
+        # This is an integration test that uses the actual storage and routing
+        # Setup actual proxy configuration (not mocked)
+        from src.app.core.add_proxy_config import add_proxy_config
+        from src.app.core.storage_data import proxy_configurations, transaction_history
+
+        # Clear storage first
+        proxy_configurations.clear()
+        transaction_history.clear()
+
+        # Add actual proxy configuration
+        add_proxy_config("/api/users", "https://jsonplaceholder.typicode.com")
+
+        # Mock the external HTTP request
+        with patch("httpx.AsyncClient.request") as mock_httpx:
+            mock_response = AsyncMock()
+            mock_response.status_code = 200
+            mock_response.headers = {"content-type": "application/json"}
+            mock_response.content = b'{"id": 1, "name": "Test User"}'
+            mock_response.text = '{"id": 1, "name": "Test User"}'
+            mock_httpx.return_value = mock_response
+
+            # Make request through the complete app
+            response = self.client.get("/proxy/api/users/1")
+
+            # Verify response
+            assert response.status_code == 200
+            assert response.json() == {"id": 1, "name": "Test User"}
+
+            # Verify the correct upstream URL was called
+            mock_httpx.assert_called_once()
+            call_args = mock_httpx.call_args
+            assert str(call_args[1]["url"]) == "https://jsonplaceholder.typicode.com/api/users/1"
+
+        # Verify transaction was actually recorded
+        from src.app.core.get_transactions import get_transactions
+
+        transactions = get_transactions()
+        assert len(transactions) == 1
+        assert transactions[0]["request"]["method"] == "GET"
+        assert transactions[0]["response"]["status_code"] == 200
+
+    def test_route_mounting_order_integration(self):
+        """Test that proxy router mounting at root level works correctly."""
+        # This test verifies the mounting order in main.py works as expected
+        from src.app.core.add_proxy_config import add_proxy_config
+        from src.app.core.storage_data import proxy_configurations
+
+        # Clear storage first
+        proxy_configurations.clear()
+
+        # Setup proxy config that could conflict with API routes
+        add_proxy_config("/api", "https://external-api.example.com")
+
+        # API routes should still work (not proxied) because they're mounted with prefix
+        api_response = self.client.get("/api/health")
+        assert api_response.status_code == 200
+        assert api_response.json()["status"] == "ok"
+
+        # Proxy routes should work for /proxy/* paths
+        with patch("httpx.AsyncClient.request") as mock_httpx:
+            mock_response = AsyncMock()
+            mock_response.status_code = 200
+            mock_response.headers = {}
+            mock_response.content = b"proxied"
+            mock_response.text = "proxied"
+            mock_httpx.return_value = mock_response
+
+            proxy_response = self.client.get("/proxy/api/test")
+            assert proxy_response.status_code == 200
+            assert proxy_response.text == "proxied"
+
+            # Verify it called the external API with correct URL
+            call_args = mock_httpx.call_args
+            assert str(call_args[1]["url"]) == "https://external-api.example.com/api/test"

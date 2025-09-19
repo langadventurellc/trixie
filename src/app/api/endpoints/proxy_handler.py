@@ -33,7 +33,9 @@ async def proxy_request(request: Request, path: str) -> Response:
         HTTPException: 500 for unexpected errors
     """
     # Find target URL using longest-prefix matching
-    target_url = get_proxy_config(path)
+    # Add leading slash to path since configurations are stored with leading slash
+    normalized_path = f"/{path}" if not path.startswith("/") else path
+    target_url = get_proxy_config(normalized_path)
     if target_url is None:
         logger.warning(f"No proxy configuration found for path: {path}")
         raise HTTPException(
@@ -41,7 +43,7 @@ async def proxy_request(request: Request, path: str) -> Response:
         )
 
     # Construct full target URL
-    full_target_url = f"{target_url.rstrip('/')}/{path}"
+    full_target_url = f"{target_url.rstrip('/')}/{normalized_path.lstrip('/')}"
 
     # Prepare request data for forwarding
     request_headers = dict(request.headers)
@@ -82,10 +84,7 @@ async def proxy_request(request: Request, path: str) -> Response:
                 "headers": dict(response.headers),
                 "body": response.text,
             },
-            "proxy_mapping_used": {
-                "path_prefix": path.split("/")[0] if "/" in path else path,
-                "target_url": target_url,
-            },
+            "proxy_mapping_used": f"{normalized_path} -> {target_url}",
         }
 
         # Store transaction data

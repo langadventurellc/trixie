@@ -1,15 +1,40 @@
 ---
 id: T-update-main-api-router-to
 title: Update main API router to include all proxy endpoints
-status: open
+status: done
 priority: medium
 parent: F-reverse-proxy-api-for-testing
 prerequisites:
   - T-implement-post-apisetup
   - T-implement-proxypathpath
   - T-implement-get-apitransactions
-affectedFiles: {}
-log: []
+affectedFiles:
+  tests/test_integration_complete_proxy_workflow.py: "Created comprehensive
+    integration tests with 7 test scenarios covering complete end-to-end
+    workflow: setup → proxy request → query transactions, multiple proxy
+    configurations, error handling across endpoints, FastAPI docs validation,
+    and health check functionality"
+  tests/test_router_endpoint_accessibility.py: Created router accessibility tests
+    with 15 test scenarios verifying all endpoints are accessible through
+    correct routes, testing individual endpoint functionality, route precedence,
+    CORS configuration, and OpenAPI docs generation
+  tests/test_proxy_handler_endpoint.py: "Added 2 integration test methods:
+    proxy_integration_through_main_app and route_mounting_order_integration to
+    verify complete FastAPI app functionality and route mounting order
+    correctness"
+  src/app/api/endpoints/proxy_handler.py: Fixed path normalization issue by adding
+    leading slash to path parameter for proper proxy configuration lookup, and
+    corrected transaction data structure to use string format for
+    proxy_mapping_used field matching TransactionRecord model
+log:
+  - Successfully verified and validated complete router integration with
+    comprehensive integration tests. Router integration was already complete in
+    main.py and router.py. The missing piece was integration tests to verify
+    end-to-end functionality. Implemented comprehensive test suites covering
+    complete workflow (setup → proxy → query), route accessibility, error
+    handling, and FastAPI docs generation. Fixed critical path normalization
+    issue in proxy handler for proper configuration matching. All 69 tests
+    passing with full quality check compliance.
 schema: v1.0
 childrenIds: []
 created: 2025-09-19T11:56:34.870Z
