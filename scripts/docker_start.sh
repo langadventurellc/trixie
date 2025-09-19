@@ -1,1 +1,1 @@
-docker compose -f ./docker-compose.yml up --force-recreate --build -d
+docker compose -f ./docker-compose.yml -f ./docker-compose.override.yml up --force-recreate --build -d

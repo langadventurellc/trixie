@@ -1,0 +1,7 @@
+PUT {{host}}/proxy/v1/users/123
+Content-Type: application/json
+
+{
+  "name": "Jane Doe",
+  "email": "jane@example.com"
+}

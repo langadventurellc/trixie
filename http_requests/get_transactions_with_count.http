@@ -1,0 +1,1 @@
+GET {{host}}/api/transactions?count=10

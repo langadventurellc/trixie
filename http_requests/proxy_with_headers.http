@@ -1,0 +1,3 @@
+GET {{host}}/proxy/v2/orders/456
+Authorization: Bearer {{token}}
+X-Custom-Header: test-value

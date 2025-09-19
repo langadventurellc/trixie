@@ -9,6 +9,15 @@
             "command": "bash -c 'cd \"$(git rev-parse --show-toplevel)\" && .claude/hooks/pre-complete-task.sh'"
           }
         ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'cd \"$(git rev-parse --show-toplevel)\" && .claude/hooks/pre-tool-task.sh'"
+          }
+        ]
       }
     ],
     "PostToolUse": [

@@ -1,0 +1,8 @@
+POST {{host}}/api/setup
+Content-Type: application/json
+
+{
+  "mappings": {
+    "/v1/users": "https://webhook.site/3e087f88-779c-4c10-8991-80c381c331c5"
+  }
+}

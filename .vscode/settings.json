@@ -1,5 +1,8 @@
 {
-    "python.analysis.extraPaths": [
-        "${workspaceFolder}/src/app/"
-    ]
+  "python.analysis.extraPaths": ["${workspaceFolder}/src/app/"],
+  "rest-client.environmentVariables": {
+    "local": {
+      "host": "http://localhost:17080"
+    }
+  }
 }
