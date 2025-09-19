@@ -6,4 +6,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "17080:80"
+      - "17080:80"   # HTTP
+      - "17443:443"  # HTTPS
+    volumes:
+      - ./certs:/certs:ro

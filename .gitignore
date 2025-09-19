@@ -216,3 +216,6 @@ supabase/.temp/
 supabase/.branches/
 
 .serena/cache/
+
+# SSL certificates for local development
+certs/

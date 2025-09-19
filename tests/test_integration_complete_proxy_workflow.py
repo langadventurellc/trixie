@@ -42,6 +42,7 @@ class TestCompleteProxyWorkflow:
             mock_response.headers = {"content-type": "application/json"}
             mock_response.text = json.dumps(mock_response_data)
             mock_response.content = json.dumps(mock_response_data).encode()
+            mock_response.aread.return_value = json.dumps(mock_response_data).encode()
             mock_request.return_value = mock_response
 
             proxy_response = self.client.get("/proxy/api/users/1")
@@ -83,6 +84,7 @@ class TestCompleteProxyWorkflow:
             mock_response1.headers = {"content-type": "application/json"}
             mock_response1.text = '{"user_id": 1}'
             mock_response1.content = b'{"user_id": 1}'
+            mock_response1.aread.return_value = b'{"user_id": 1}'
 
             # Second request
             mock_response2 = AsyncMock(spec=Response)
@@ -90,6 +92,7 @@ class TestCompleteProxyWorkflow:
             mock_response2.headers = {"content-type": "application/json"}
             mock_response2.text = '{"post_id": 123}'
             mock_response2.content = b'{"post_id": 123}'
+            mock_response2.aread.return_value = b'{"post_id": 123}'
 
             mock_request.side_effect = [mock_response1, mock_response2]
 
@@ -137,6 +140,7 @@ class TestCompleteProxyWorkflow:
             mock_response.headers = {}
             mock_response.text = "OK"
             mock_response.content = b"OK"
+            mock_response.aread.return_value = b"OK"
             mock_request.return_value = mock_response
 
             # Make 5 requests

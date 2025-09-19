@@ -69,6 +69,7 @@ class TestRouterEndpointAccessibility:
             mock_response.headers = {"content-type": "application/json"}
             mock_response.text = '{"success": true}'
             mock_response.content = b'{"success": true}'
+            mock_response.aread.return_value = b'{"success": true}'
             mock_request.return_value = mock_response
 
             # Test various HTTP methods
@@ -107,6 +108,7 @@ class TestRouterEndpointAccessibility:
             mock_response.headers = {}
             mock_response.text = "proxied"
             mock_response.content = b"proxied"
+            mock_response.aread.return_value = b"proxied"
             mock_request.return_value = mock_response
 
             proxy_response = self.client.get("/proxy/api/health")
@@ -190,6 +192,7 @@ class TestRouterEndpointAccessibility:
             mock_response.headers = {}
             mock_response.text = "response"
             mock_response.content = b"response"
+            mock_response.aread.return_value = b"response"
             mock_request.return_value = mock_response
 
             # Should match longest prefix first (/api/users not /api)

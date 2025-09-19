@@ -3,7 +3,8 @@ from typing import Any
 from uuid import uuid4
 
 import httpx
-from fastapi import APIRouter, HTTPException, Request, Response
+from fastapi import APIRouter, HTTPException, Request
+from fastapi.responses import StreamingResponse
 from pyla_logger import logger
 
 from ...core.add_transaction import add_transaction
@@ -12,10 +13,14 @@ from ...core.get_proxy_config import get_proxy_config
 router = APIRouter()
 
 
-@router.api_route(
-    "/proxy/{path:path}", methods=["GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS"]
-)
-async def proxy_request(request: Request, path: str) -> Response:
+@router.get("/proxy/{path:path}", operation_id="proxy_request_get")
+@router.post("/proxy/{path:path}", operation_id="proxy_request_post")
+@router.put("/proxy/{path:path}", operation_id="proxy_request_put")
+@router.delete("/proxy/{path:path}", operation_id="proxy_request_delete")
+@router.patch("/proxy/{path:path}", operation_id="proxy_request_patch")
+@router.head("/proxy/{path:path}", operation_id="proxy_request_head")
+@router.options("/proxy/{path:path}", operation_id="proxy_request_options")
+async def proxy_request(request: Request, path: str) -> StreamingResponse:
     """Forward HTTP requests to configured target URLs based on path prefix matching.
 
     Captures complete request/response data for later querying by test fixtures.
@@ -68,6 +73,10 @@ async def proxy_request(request: Request, path: str) -> Response:
                 content=request_body,
             )
 
+        # Read the response content once
+        response_body = await response.aread()
+        response_chunks = [response_body] if response_body else []
+
         # Prepare transaction data for storage
         transaction_data: dict[str, Any] = {
             "id": transaction_id,
@@ -82,7 +91,7 @@ async def proxy_request(request: Request, path: str) -> Response:
             "response": {
                 "status_code": response.status_code,
                 "headers": dict(response.headers),
-                "body": response.text,
+                "body": response_body.decode("utf-8", errors="replace"),
             },
             "proxy_mapping_used": f"{normalized_path} -> {target_url}",
         }
@@ -90,11 +99,22 @@ async def proxy_request(request: Request, path: str) -> Response:
         # Store transaction data
         add_transaction(transaction_data)
 
-        # Return exact response from target server
-        return Response(
-            content=response.content,
+        # Create async generator to stream the captured chunks
+        async def generate_response():
+            for chunk in response_chunks:
+                yield chunk
+
+        # In proxy_handler.py
+        headers = dict(response.headers)
+
+        # Remove/replace conflicting headers that FastAPI will add
+        headers.pop("server", None)  # Let FastAPI set this
+        headers.pop("date", None)  # Let FastAPI set this
+
+        return StreamingResponse(
+            generate_response(),
             status_code=response.status_code,
-            headers=dict(response.headers),
+            headers=headers,  # Now clean headers
         )
 
     except httpx.ConnectError as e:
