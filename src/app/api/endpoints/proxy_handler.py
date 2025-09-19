@@ -1,5 +1,5 @@
 from datetime import datetime, timezone
-from typing import Any, Dict
+from typing import Any
 from uuid import uuid4
 
 import httpx
@@ -69,7 +69,7 @@ async def proxy_request(request: Request, path: str) -> Response:
             )
 
         # Prepare transaction data for storage
-        transaction_data: Dict[str, Any] = {
+        transaction_data: dict[str, Any] = {
             "id": transaction_id,
             "timestamp": transaction_timestamp,
             "request": {
