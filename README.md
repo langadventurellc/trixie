@@ -25,11 +25,12 @@ docker run -p 17080:80 trixie
 
 ## API Overview
 
-The API provides three main endpoints:
+The API provides four main endpoints:
 
 - **Setup**: Configure proxy path mappings
 - **Proxy**: Forward requests and capture transactions
 - **Query**: Retrieve captured transaction history
+- **Clear**: Remove all captured transaction history
 
 ### Base URL
 When running via Docker: `http://localhost:17080`
@@ -185,6 +186,7 @@ The repository includes example HTTP request files in `/http_requests/` for test
 - `health_check.http` - Health check
 - `proxy_setup.http` - Configure mappings
 - `get_all_transactions.http` - Query all transactions
+- `clear_transactions.http` - Clear transaction history
 - `proxy_*.http` - Various proxy request examples
 
 Use these with HTTP clients like REST Client (VS Code) or Postman.
