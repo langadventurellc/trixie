@@ -1,0 +1,9 @@
+services:
+  trixie_api:
+    image: ${DOCKER_REGISTRY-}trixie_api
+    container_name: "trixie_api"
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "17080:80"
